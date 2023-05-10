@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <!-- DAO에서 호출 시 필요 -->
+<mapper namespace="com.shinhan.dept">
+
+	<!-- 맵 형식을 지정 -->
+	<resultMap type="deptvo" id="deptMap1">
+		<result property="department_id" column="department_id"/>
+		<result property="department_name" column="department_name"/>
+		<result property="manager_id" column="manager_id"/>
+		<result property="location_id" column="location_id"/>
+		
+	</resultMap>
+
+	<!-- id = 함수 이름 parameterType = 파라메터 타입 resultType=리턴타입 -->
+	<!-- sql문의 결과 값을 맵에 저장 -->
+  <select id="selectAll" resultMap="deptMap1">
+    select * from departments
+  </select>
+  
+  <!-- 결과값을 타입에 맞춰 저장 -->
+  <select id="selectById" parameterType="int" resultType="deptvo">
+    select * from departments where department_id=#{aa}
+  </select>
+  
+  <insert id="insert" parameterType ="deptvo">
+  insert into departments(department_id,department_name,manager_id,location_id)
+  values(#{department_id},#{department_name},#{manager_id},#{location_id})
+  </insert>
+  
+  <update id="update" parameterType="deptvo">
+  update departments 
+  set department_name=#{department_name}, manager_id=#{manager_id},location_id=#{location_id}
+  where department_id=#{department_id}
+  </update>
+  
+  <delete id="delete" parameterType = "int">
+  delete from departments
+  where department_id = #{department_id}
+  </delete>
+</mapper>

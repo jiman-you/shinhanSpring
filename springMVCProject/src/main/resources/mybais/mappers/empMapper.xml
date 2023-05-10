@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.kr.firstzone.emp">
+	
+
+  <select id="selectAll" resultType="empvo">
+    select * from employees order by 1 desc
+  </select>
+  
+  <select id="selectById" parameterType="int" resultType="empvo">
+    select * from employees where employee_id=#{employee_id}
+  </select>
+  
+  <select id="selectByDept" parameterType="int" resultType="empvo">
+    select * from employees where department_id =#{department_id}
+  </select>
+  
+  <select id="selectByCondition" parameterType="map" resultType="empvo">
+   	<![CDATA[
+		   	select * 
+		   from employees 
+		   where department_id = #{department_id}
+		   and job_id = #{job_id} 
+		   and salary<= #{salary} 
+	   	]]>
+  </select>
+  
+  <!-- if문을 자연스럽게 주기 위해 where 절에 무조건 맞는 1=1문장을 줌 -->
+  <select id="selectByCondition2" parameterType="empvo" resultType="empvo">
+  
+		   	select * 
+		   from employees 
+		   where 1=1
+		   
+		   <if test="department_id != null and department_id !=0">
+		   	and department_id = #{department_id}
+		   </if>
+		    <if test="job_id != null and job_id !=''">
+		   	and job_id = #{job_id}
+		   </if>
+		    <if test="salary != null and salary !=0">
+		   	and salary >= #{salary}
+		   </if>
+		    <if test="hire_date != null">
+		   	and hire_date >= #{hire_date}
+		   </if>
+		   order by employee_id asc
+	    </select>
+	    
+	     <!-- if문을 자연스럽게 주기 위해 where 절에 무조건 맞는 1=1문장을 줌 -->
+  <select id="selectByCondition3" parameterType="map" resultType="empvo">
+		   	select * 
+		   from employees 
+		   where 1=1
+		    <if test="deptid != null">
+		     and department_id in
+				<!-- cllection = 배열 변수이름 item=콜랙션을 쪼갠걸 다시 부르는 이름  --> 
+			   <foreach collection="deptid" item="did" open="(" separator="," close=")">
+				  #{did}	   
+			   </foreach>
+			 </if>
+	
+		    <if test="jobid != null and jobid !=''">
+		   	and job_id = #{jobid}
+		   </if>
+		    <if test="salary != null and salary !=0">
+		   	and salary >= #{salary}
+		   </if>
+		    <if test="hiredate != null">
+		   	and hire_date >= #{hiredate}
+		   </if>
+		   order by employee_id asc
+	    </select>
+	    
+  <select id="selectByCondition4" parameterType="map" resultType="empvo">
+		   	select * 
+		   from employees 
+		   where 1=1
+		    <if test="deptid != null">
+		     and department_id in
+				<!-- cllection = 배열 변수이름 item=콜랙션을 쪼갠걸 다시 부르는 이름  --> 
+			   <foreach collection="deptid" item="did" open="(" separator="," close=")">
+				  <!-- deptid가 0이면 모든 부서아이디 가져오기 -->
+				  <if test="did==0">
+				  	select department_id from departments
+				  </if>	   
+				  <if test="did!=0">
+				  	#{did}
+				  </if>	   
+			   </foreach>
+			 </if>
+	
+		    <if test="jobid != null and jobid !=''">
+		   	and job_id = #{jobid}
+		   </if>
+		    <if test="salary != null and salary !=0">
+		   	and salary >= #{salary}
+		   </if>
+		    <if test="hiredate != null">
+		   	and hire_date >= #{hiredate}
+		   </if>
+		   order by employee_id asc
+	    </select>
+  
+  <insert id="empInsert" parameterType="empvo">
+  insert into employees(employee_id,first_name,last_name,email,phone_number,
+  						hire_date,job_id,salary,
+  						commission_pct,manager_id,department_id)
+  values(seq_employee.nextval,#{first_name},#{last_name},#{email},
+  							#{phone_number},#{hire_date},#{job_id},#{salary},
+  							#{commission_pct},
+  							<if test="manager_id != 0">
+  								#{manager_id},
+  							</if>
+  							<if test="manager_id == 0">
+  								null,
+  							</if>
+  							<if test="department_id != 0">
+  								#{department_id})
+  							</if>
+  							<if test="department_id == 0">
+  								null)
+  							</if>
+  							
+  </insert>
+  
+  <update id="empUpdate" parameterType="empvo">
+   update employees
+   set FIRST_NAME=#{first_name}, LAST_NAME=#{last_name},EMAIL=#{email},
+    DEPARTMENT_ID=<if test="department_id != 0">
+  								#{department_id}
+  							</if>
+  							<if test="department_id == 0">
+  								null
+  							</if>, JOB_ID=#{job_id},SALARY=#{salary,jdbcType=INTEGER},
+    PHONE_NUMBER=#{phone_number},COMMISSION_PCT=#{commission_pct},
+    HIRE_DATE=#{hire_date}, MANAGER_ID=<if test="manager_id!=0">#{manager_id}</if>
+    									<if test="manager_id==0">null</if>	 
+	where EMPLOYEE_ID =#{employee_id}
+  </update>
+  
+  <delete id="empDelete" parameterType="int">
+  	delete from employees where EMPLOYEE_ID =#{employee_id}
+  </delete>
+</mapper>
